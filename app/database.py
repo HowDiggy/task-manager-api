@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # PostgreSQL connection string
 # Format: "postgresql://USER:PASSWORD@HOST:PORT/DATABASE_NAME"
 # These match the environment variables in your docker-compose.yml
-SQLALCHEMY_DATABASE_URL = "postgresql://user:mysecretpassword@localhost:5432/taskmanagerdb"
+SQLALCHEMY_DATABASE_URL = "postgresql://user:mysecretpassword@db:5432/taskmanagerdb"
 
 # Create the SQLAlchemy engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

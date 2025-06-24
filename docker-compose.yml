@@ -1,15 +1,33 @@
+# docker-compose.yml
 services:
   db:
-    image: postgres:16-alpine # Use the official PostgreSQL 16 Alpine image
-    container_name: task-manager-postgres # A friendly name for the container
+    image: postgres:16-alpine
+    container_name: task-manager-postgres
     environment:
-      POSTGRES_DB: taskmanagerdb      # Name of the database to create
-      POSTGRES_USER: user             # Username for the database
-      POSTGRES_PASSWORD: mysecretpassword # Password for the user
+      POSTGRES_DB: taskmanagerdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: mysecretpassword
     ports:
-      - "5432:5432" # Map host port 5432 to container port 5432
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data # Persist data in a named volume
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    build: . # Tells Docker Compose to build the image from the Dockerfile in the current directory
+    container_name: task-manager-api-app # A friendly name for the container
+    ports:
+      - "8000:8000" # Map host port 8000 to container port 8000
+    depends_on:
+      - db # Ensures the 'db' service starts before the 'app' service
+    environment:
+      # Although currently hardcoded in database.py, you could pass DB connection details here for more flexibility
+      # SQLALCHEMY_DATABASE_URL: postgresql://user:mysecretpassword@db:5432/taskmanagerdb
+      PYTHONUNBUFFERED: 1 # Ensures Python output is unbuffered
+    volumes:
+      - ./app:/usr/src/app/app # Mount your local 'app' directory into the container for hot-reloading
+      - ./requirements.txt:/usr/src/app/requirements.txt # Optional: mount requirements if you frequently change them
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload # Command to run the app with hot-reloading
+    # Remove the `network` setting. By default, services in the same compose file are on the same network.
 
 volumes:
-  db_data: # Define the named volume
+  db_data:
